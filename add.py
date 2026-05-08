@@ -1,0 +1,5 @@
+a=int(input("enter a number: "))
+b=float(input("enter a number: "))
+add=sum(a,b)
+c=int(add)
+print(c)

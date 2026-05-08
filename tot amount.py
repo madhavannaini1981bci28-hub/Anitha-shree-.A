@@ -1,0 +1,6 @@
+a=int(input("enter no. of rs.10:"))
+b=int(input("enter no. of rs.5:"))
+c=int(input("enter no. of rs.2:"))
+d=int(input("enter no. of rs.10:"))
+total=(a*10)+(b*5)+(c*2)+(d*1)
+print(total)
