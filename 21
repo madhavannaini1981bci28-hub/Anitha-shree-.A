@@ -1,0 +1,6 @@
+tasks = ["Buy milk", "Clean room", "Code in Python"]
+tasks.append("Go for a run")  # Adding a new task
+
+print("My Tasks:")
+for item in tasks:
+    print(f"- {item}")
