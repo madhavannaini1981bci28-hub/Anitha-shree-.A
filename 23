@@ -1,0 +1,9 @@
+import os, shutil
+# Moves files from current folder to subfolders based on extension
+for file in os.listdir('.'):
+    if file.endswith('.jpg'):
+        os.makedirs('Images', exist_ok=True)
+        shutil.move(file, 'Images/' + file)
+    elif file.endswith('.pdf'):
+        os.makedirs('Docs', exist_ok=True)
+        shutil.move(file, 'Docs/' + file)
