@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+void tokenize(const char *str) {
+    int len = strlen(str);
+    char *word = malloc(len + 1);
+    int word_idx = 0;
+    int word_count = 1;
+
+    if (!word) return;
+
+    printf("Parsing string...\n");
+    for (int i = 0; i <= len; i++) {
+        // Check for word boundaries (spaces, punctuation, or string terminator)
+        if (isspace((unsigned char)str[i]) || str[i] == '\0' || ispunct((unsigned char)str[i])) {
+            if (word_idx > 0) {
+                word[word_idx] = '\0';
+                printf("Token %d: %s\n", word_count++, word);
+                word_idx = 0; // Reset index for next word
+            }
+        } else {
+            word[word_idx++] = str[i];
+        }
+    }
+    free(word);
+}
+
+int main(void) {
+    const char *text = "Hello, world! Learning C programming is fun.";
+    printf("Original: %s\n\n", text);
+    tokenize(text);
+    return 0;
+}
