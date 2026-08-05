@@ -1,0 +1,23 @@
+#include <stdio.h>
+
+void solve(int row, int ld, int rd, int n, int *count, int uppermask) {
+    if (row == uppermask) {
+        (*count)++;
+        return;
+    }
+    int pos = uppermask & ~(row | ld | rd);
+    while (pos) {
+        int p = pos & -pos;
+        pos -= p;
+        solve(row | p, (ld | p) << 1, (rd | p) >> 1, n, count, uppermask);
+    }
+}
+
+int main() {
+    int n = 12; // Test for 12 queens
+    int count = 0;
+    int uppermask = (1 << n) - 1;
+    solve(0, 0, 0, n, &count, uppermask);
+    printf("Total solutions for %d-Queens: %d\n", n, count);
+    return 0;
+}
