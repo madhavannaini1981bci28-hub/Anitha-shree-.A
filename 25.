@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define TABLE_SIZE 10
+
+typedef struct Node {
+    char *key;
+    int value;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node *buckets[TABLE_SIZE];
+} HashTable;
+
+// Classic DJB2 hash algorithm scaled down to fit our table array limits
+unsigned int hash(const char *key) {
+    unsigned long int hash_val = 5381;
+    int i = 0;
+    while (key[i] != '\0') {
+        hash_val = ((hash_val << 5) + hash_val) + key[i];
+        i++;
+    }
+    return hash_val % TABLE_SIZE;
+}
+
+void insert(HashTable *table, const char *key, int value) {
+    unsigned int index = hash(key);
+    Node *new_node = malloc(sizeof(Node));
+    if (!new_node) return;
+    
+    new_node->key = strdup(key); // Duplicate string memory
+    new_node->value = value;
+    
+    // Insert at the head of the bucket link chain (O(1) collision handling)
+    new_node->next = table->buckets[index];
+    table->buckets[index] = new_node;
+}
+
+int search(HashTable *table, const char *key, int *found_val) {
+    unsigned int index = hash(key);
+    Node *curr = table->buckets[index];
+    
+    while (curr != NULL) {
+        if (strcmp(curr->key, key) == 0) {
+            *found_val = curr->value;
+            return 1; // Key found
+        }
+        curr = curr->next;
+    }
+    return 0; // Key missing
+}
+
+void free_table(HashTable *table) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node *curr = table->buckets[i];
+        while (curr != NULL) {
+            Node *temp = curr;
+            curr = curr->next;
+            free(temp->key);
+            free(temp);
+        }
+    }
+}
+
+int main(void) {
+    HashTable my_map = { {NULL} };
+    
+    insert(&my_map, "Alice", 25);
+    insert(&my_map, "Bob", 32);
+    insert(&my_map, "Charlie", 19); // Might cause a collision depending on hash mapping
+
+    int age;
+    if (search(&my_map, "Bob", &age)) {
+        printf("Bob's age is: %d\n", age);
+    } else {
+        printf("Record not found.\n");
+    }
+
+    free_table(&my_map);
+    return 0;
+}
