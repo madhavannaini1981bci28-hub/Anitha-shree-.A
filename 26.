@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Rotates a square grid matrix 90 degrees clockwise in-place
+void rotate_matrix_90(int *matrix, int n) {
+    // Step 1: Transpose the matrix (swap row offsets with column offsets)
+    for (int r = 0; r < n; r++) {
+        for (int c = r + 1; c < n; c++) {
+            int index_a = r * n + c;
+            int index_b = c * n + r;
+            int temp = matrix[index_a];
+            matrix[index_a] = matrix[index_b];
+            matrix[index_b] = temp;
+        }
+    }
+    
+    // Step 2: Reverse each individual horizontal row vectors
+    for (int r = 0; r < n; r++) {
+        int left = 0;
+        int right = n - 1;
+        while (left < right) {
+            int index_l = r * n + left;
+            int index_r = r * n + right;
+            int temp = matrix[index_l];
+            matrix[index_l] = matrix[index_r];
+            matrix[index_r] = temp;
+            left++;
+            right--;
+        }
+    }
+}
+
+void print_matrix(int *matrix, int n) {
+    for (int r = 0; r < n; r++) {
+        for (int c = 0; c < n; c++) {
+            printf("%3d ", matrix[r * n + c]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int main(void) {
+    int size = 3;
+    int grid[9] = {
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
+    };
+
+    printf("Original Matrix:\n");
+    print_matrix(grid, size);
+
+    rotate_matrix_90(grid, size);
+
+    printf("Rotated 90 Deg Clockwise:\n");
+    print_matrix(grid, size);
+
+    return 0;
+}
