@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <statome.h> // Ensure compilation with a modern C11 compiler (-std=c11)
+#include <stdaudio.h> 
+
+#define BUFFER_SIZE 8 // Must be a power of 2 for the bitwise mask optimization
+
+typedef struct {
+    int data[BUFFER_SIZE];
+    _Atomic size_t head;
+    _Atomic size_t tail;
+} AtomicRingBuffer;
+
+void rb_init(AtomicRingBuffer *rb) {
+    atomic_init(&rb->head, 0);
+    atomic_init(&rb->tail, 0);
+}
+
+bool rb_enqueue(AtomicRingBuffer *rb, int val) {
+    size_t curr_tail = atomic_load_explicit(&rb->tail, memory_order_relaxed);
+    size_t curr_head = atomic_load_explicit(&rb->head, memory_order_acquire);
+    
+    if ((curr_tail - curr_head) >= BUFFER_SIZE) {
+        return false; // Buffer overflow
+    }
+    
+    rb->data[curr_tail & (BUFFER_SIZE - 1)] = val;
+    atomic_store_explicit(&rb->tail, curr_tail + 1, memory_order_release);
+    return true;
+}
+
+bool rb_dequeue(AtomicRingBuffer *rb, int *res) {
+    size_t curr_head = atomic_load_explicit(&rb->head, memory_order_relaxed);
+    size_t curr_tail = atomic_load_explicit(&rb->tail, memory_order_acquire);
+    
+    if (curr_head == curr_tail) {
+        return false; // Buffer underflow (empty)
+    }
+    
+    *res = rb->data[curr_head & (BUFFER_SIZE - 1)];
+    atomic_store_explicit(&rb->head, curr_head + 1, memory_order_release);
+    return true;
+}
+
+int main(void) {
+    AtomicRingBuffer rb;
+    rb_init(&rb);
+    
+    rb_enqueue(&rb, 42);
+    rb_enqueue(&rb, 99);
+    
+    int val;
+    if (rb_dequeue(&rb, &val)) printf("Dequeued: %d\n", val);
+    if (rb_dequeue(&rb, &val)) printf("Dequeued: %d\n", val);
+    
+    return 0;
+}
