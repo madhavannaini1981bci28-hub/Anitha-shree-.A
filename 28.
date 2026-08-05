@@ -1,0 +1,28 @@
+#include <stdio.h>
+
+int main(void) {
+    int choice;
+    float input_temp, converted_temp;
+
+    printf("=== Temperature Converter ===\n");
+    printf("1. Celsius to Fahrenheit\n");
+    printf("2. Fahrenheit to Celsius\n");
+    printf("Enter your choice (1 or 2): ");
+    scanf("%d", &choice);
+
+    if (choice == 1) {
+        printf("Enter temperature in Celsius: ");
+        scanf("%f", &input_temp);
+        converted_temp = (input_temp * 9 / 5) + 32;
+        printf("%.2f°C is equal to %.2f°F\n", input_temp, converted_temp);
+    } else if (choice == 2) {
+        printf("Enter temperature in Fahrenheit: ");
+        scanf("%f", &input_temp);
+        converted_temp = (input_temp - 32) * 5 / 9;
+        printf("%.2f°F is equal to %.2f°C\n", input_temp, converted_temp);
+    } else {
+        printf("Invalid selection! Please restart the program.\n");
+    }
+
+    return 0;
+}
