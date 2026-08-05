@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+typedef struct Node {
+    int data;
+    struct Node* link; // Stores XOR of prev address and next address
+} Node;
+
+Node* xor_ptr(Node* a, Node* b) {
+    return (Node*)((uintptr_t)(a) ^ (uintptr_t)(b));
+}
+
+void insert(Node** head, int data) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = data;
+    
+    // Since it's inserted at the beginning, link is XOR of new head and NULL
+    new_node->link = xor_ptr(*head, NULL);
+    
+    if (*head != NULL) {
+        // Get the node next to current head
+        Node* next = xor_ptr((*head)->link, NULL);
+        (*head)->link = xor_ptr(new_node, next);
+    }
+    *head = new_node;
+}
+
+void print_list(Node* head) {
+    Node* curr = head;
+    Node* prev = NULL;
+    Node* next;
+    
+    printf("XOR List Nodes: ");
+    while (curr != NULL) {
+        printf("%d ", curr->data);
+        next = xor_ptr(prev, curr->link);
+        prev = curr;
+        curr = next;
+    }
+    printf("\n");
+}
+
+int main(void) {
+    Node* head = NULL;
+    insert(&head, 10);
+    insert(&head, 20);
+    insert(&head, 30);
+    
+    print_list(head);
+    return 0;
+}
