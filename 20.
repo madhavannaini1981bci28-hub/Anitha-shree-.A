@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Node {
+    char *key;
+    int value;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node **buckets;
+    int size;
+} HashMap;
+
+HashMap* createMap(int size) {
+    HashMap *map = malloc(sizeof(HashMap));
+    map->size = size;
+    map->buckets = calloc(size, sizeof(Node*));
+    return map;
+}
+
+unsigned int hash(char *key, int size) {
+    unsigned int hashValue = 0;
+    while (*key) hashValue = (hashValue * 31) + *key++;
+    return hashValue % size;
+}
+
+void insert(HashMap *map, char *key, int value) {
+    unsigned int idx = hash(key, map->size);
+    Node *curr = map->buckets[idx];
+    while (curr) {
+        if (strcmp(curr->key, key) == 0) {
+            curr->value = value;
+            return;
+        }
+        curr = curr->next;
+    }
+    Node *newNode = malloc(sizeof(Node));
+    newNode->key = strdup(key);
+    newNode->value = value;
+    newNode->next = map->buckets[idx];
+    map->buckets[idx] = newNode;
+}
+
+int get(HashMap *map, char *key) {
+    unsigned int idx = hash(key, map->size);
+    Node *curr = map->buckets[idx];
+    while (curr) {
+        if (strcmp(curr->key, key) == 0) return curr->value;
+        curr = curr->next;
+    }
+    return -1; // Not found
+}
+
+int main() {
+    HashMap *map = createMap(10);
+    insert(map, "apple", 42);
+    insert(map, "banana", 99);
+    printf("apple: %d\n", get(map, "apple"));
+    printf("banana: %d\n", get(map, "banana"));
+    return 0;
+}
