@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+void compress_rle(const char *input) {
+    int len = strlen(input);
+    if (len == 0) return;
+
+    // Allocate an output buffer large enough to handle extreme cases
+    char *output = malloc(len * 2 + 1);
+    if (!output) return;
+
+    int out_idx = 0;
+    for (int i = 0; i < len; i++) {
+        int run_count = 1;
+        
+        // Count matching consecutive character sets
+        while (i + 1 < len && input[i] == input[i + 1]) {
+            run_count++;
+            i++;
+        }
+
+        // Append the character pattern
+        output[out_idx++] = input[i];
+        
+        // Format track count directly into the character stream buffer
+        int written = sprintf(&output[out_idx], "%d", run_count);
+        out_idx += written;
+    }
+    output[out_idx] = '\0';
+
+    printf("Original Stream: %s (%d bytes)\n", input, len);
+    printf("Compressed Output: %s (%d bytes)\n", output, (int)strlen(output));
+    
+    free(output);
+}
+
+int main(void) {
+    const char *data_stream = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWSTUV";
+    compress_rle(data_stream);
+    return 0;
+}
