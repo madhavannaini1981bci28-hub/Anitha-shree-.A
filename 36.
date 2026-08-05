@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int *data;
+    int size;
+    int capacity;
+} IntVector;
+
+void vector_init(IntVector *v, int initial_capacity) {
+    v->capacity = initial_capacity;
+    v->size = 0;
+    v->data = malloc(v->capacity * sizeof(int));
+}
+
+void vector_push(IntVector *v, int value) {
+    if (v->size == v->capacity) {
+        v->capacity *= 2; // Double the allocation boundary
+        int *new_data = realloc(v->data, v->capacity * sizeof(int));
+        if (!new_data) {
+            printf("Memory allocation failed!\n");
+            return;
+        }
+        v->data = new_data;
+        printf("--- Vector expanded to capacity: %d ---\n", v->capacity);
+    }
+    v->data[v->size++] = value;
+}
+
+void vector_free(IntVector *v) {
+    free(v->data);
+    v->data = NULL;
+    v->size = 0;
+    v->capacity = 0;
+}
+
+int main(void) {
+    IntVector my_list;
+    vector_init(&my_list, 2); // Start small to force expansion
+
+    vector_push(&my_list, 10);
+    vector_push(&my_list, 20);
+    vector_push(&my_list, 30); // Triggers reallocation
+    vector_push(&my_list, 40);
+    vector_push(&my_list, 50); // Triggers reallocation
+
+    printf("\nVector contents: ");
+    for (int i = 0; i < my_list.size; i++) {
+        printf("%d ", my_list.data[i]);
+    }
+    printf("\n");
+
+    vector_free(&my_list);
+    return 0;
+}
