@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CONTACTS 50
+#define NAME_LEN 50
+#define PHONE_LEN 20
+
+typedef struct {
+    char name[NAME_LEN];
+    char phone[PHONE_LEN];
+} Contact;
+
+void save_contacts(const char *filename, Contact *list, int count) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        printf("Error saving records to disk!\n");
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        fprintf(file, "%s\n%s\n", list[i].name, list[i].phone);
+    }
+    fclose(file);
+    printf("Successfully updated database records.\n");
+}
+
+int load_contacts(const char *filename, Contact *list) {
+    FILE *file = fopen(filename, "r");
+    if (!file) return 0; // File doesn't exist yet, start clean
+
+    int count = 0;
+    while (count < MAX_CONTACTS && fgets(list[count].name, NAME_LEN, file)) {
+        // Strip trailing newline characters from text streams
+        list[count].name[strcspn(list[count].name, "\n")] = '\0';
+        
+        if (fgets(list[count].phone, PHONE_LEN, file)) {
+            list[count].phone[strcspn(list[count].phone, "\n")] = '\0';
+            count++;
+        }
+    }
+    fclose(file);
+    return count;
+}
+
+int main(void) {
+    Contact directory[MAX_CONTACTS];
+    const char *db_file = "contacts.txt";
+    int count = load_contacts(db_file, directory);
+    int choice;
+
+    printf("Loaded %d contacts.\n", count);
+    printf("1. Add Contact\n2. View All\nSelect option: ");
+    scanf("%d", &choice);
+    getchar(); // Clear lingering newline from buffer
+
+    if (choice == 1 && count < MAX_CONTACTS) {
+        printf("Enter Name: ");
+        fgets(directory[count].name, NAME_LEN, stdin);
+        directory[count].name[strcspn(directory[count].name, "\n")] = '\0';
+
+        printf("Enter Phone: ");
+        fgets(directory[count].phone, PHONE_LEN, stdin);
+        directory[count].phone[strcspn(directory[count].phone, "\n")] = '\0';
+
+        count++;
+        save_contacts(db_file, directory, count);
+    } else {
+        printf("\n=== Contact Roster ===\n");
+        for (int i = 0; i < count; i++) {
+            printf("[%d] %-20s : %s\n", i + 1, directory[i].name, directory[i].phone);
+        }
+    }
+    return 0;
+}
