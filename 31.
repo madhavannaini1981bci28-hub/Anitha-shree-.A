@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main(void) {
+    int secret_num, guess, attempts = 0;
+
+    // Seed the random number generator using the current system time
+    srand(time(NULL));
+    secret_num = (rand() % 100) + 1; // Generates a number between 1 and 100
+
+    printf("=== Guess the Secret Number (1 to 100) ===\n");
+
+    do {
+        printf("Enter your guess: ");
+        scanf("%d", &guess);
+        attempts++;
+
+        if (guess > secret_num) {
+            printf("Too high! Try a lower number.\n\n");
+        } else if (guess < secret_num) {
+            printf("Too low! Try a higher number.\n\n");
+        } else {
+            printf("\nCongratulations! You found it in %d attempts.\n", attempts);
+        }
+    } while (guess != secret_num);
+
+    return 0;
+}
