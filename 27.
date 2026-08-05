@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+typedef struct {
+    uint32_t id;
+    char name[32];
+    float salary;
+} Employee;
+
+void save_employee_db(const char *filename, Employee *list, int count) {
+    FILE *file = fopen(filename, "wb"); // Must open in explicitly block-binary mode
+    if (!file) return;
+
+    // Write full struct chunks in one operation step
+    size_t written = fwrite(list, sizeof(Employee), count, file);
+    printf("Successfully packed and dumped %zu binary struct records.\n", written);
+    
+    fclose(file);
+}
+
+void load_and_print_db(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) return;
+
+    Employee temp;
+    printf("\nReading raw records from database file:\n");
+    printf("-------------------------------------------\n");
+    
+    // Read record-by-record until file marker ends
+    while (fread(&temp, sizeof(Employee), 1, file) == 1) {
+        printf("ID: %04u | Name: %-12s | Salary: $%.2f\n", temp.id, temp.name, temp.salary);
+    }
+    
+    fclose(file);
+}
+
+int main(void) {
+    const char *db_file = "staff.db";
+    
+    Employee target_staff[2] = {
+        {101, "David Miller", 75000.50f},
+        {102, "Sarah Connor", 92100.25f}
+    };
+
+    save_employee_db(db_file, target_staff, 2);
+    load_and_print_db(db_file);
+
+    return 0;
+}
