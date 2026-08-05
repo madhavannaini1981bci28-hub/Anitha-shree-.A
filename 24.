@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    int *items;
+    int capacity;
+    int top;
+} Stack;
+
+Stack* create_stack(int initial_capacity) {
+    Stack *s = malloc(sizeof(Stack));
+    if (!s) return NULL;
+    s->capacity = initial_capacity;
+    s->top = -1;
+    s->items = malloc(s->capacity * sizeof(int));
+    return s;
+}
+
+bool push(Stack *s, int value) {
+    if (s->top == s->capacity - 1) {
+        // Expand capacity by doubling it when full
+        int new_capacity = s->capacity * 2;
+        int *new_items = realloc(s->items, new_capacity * sizeof(int));
+        if (!new_items) return false; 
+        
+        s->items = new_items;
+        s->capacity = new_capacity;
+    }
+    s->items[++(s->top)] = value;
+    return true;
+}
+
+bool pop(Stack *s, int *result) {
+    if (s->top == -1) return false; // Empty stack
+    *result = s->items[(s->top)--];
+    return true;
+}
+
+void free_stack(Stack *s) {
+    free(s->items);
+    free(s);
+}
+
+int main(void) {
+    Stack *my_stack = create_stack(2); // Starts tiny to test auto-growth
+    
+    push(my_stack, 10);
+    push(my_stack, 20);
+    push(my_stack, 30); // Triggers resizing logic
+
+    int popped_val;
+    while (pop(my_stack, &popped_val)) {
+        printf("Popped item: %d\n", popped_val);
+    }
+
+    free_stack(my_stack);
+    return 0;
+}
