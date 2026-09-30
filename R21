@@ -1,0 +1,88 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef struct {
+    int* data;      // Array to store queue elements
+    int front;      // Index of the front element
+    int rear;       // Index where the next element will be inserted
+    int size;       // Current number of elements inside the queue
+    int capacity;   // Maximum capacity of the queue (k)
+} MyCircularQueue;
+
+/** Initializes the object with the size of the queue to be k. */
+MyCircularQueue* myCircularQueueCreate(int k) {
+    MyCircularQueue* obj = (MyCircularQueue*)malloc(sizeof(MyCircularQueue));
+    obj->data = (int*)malloc(k * sizeof(int));
+    obj->front = 0;
+    obj->rear = 0;
+    obj->size = 0;
+    obj->capacity = k;
+    return obj;
+}
+
+/** Checks whether the circular queue is empty or not. */
+bool myCircularQueueIsEmpty(MyCircularQueue* obj) {
+    return obj->size == 0;
+}
+
+/** Checks whether the circular queue is full or not. */
+bool myCircularQueueIsFull(MyCircularQueue* obj) {
+    return obj->size == obj->capacity;
+}
+
+/** Inserts an element into the circular queue. Return true if successful. */
+bool myCircularQueueEnQueue(MyCircularQueue* obj, int value) {
+    if (myCircularQueueIsFull(obj)) {
+        return false;
+    }
+    obj->data[obj->rear] = value;
+    obj->rear = (obj->rear + 1) % obj->capacity;
+    obj->size++;
+    return true;
+}
+
+/** Deletes an element from the circular queue. Return true if successful. */
+bool myCircularQueueDeQueue(MyCircularQueue* obj) {
+    if (myCircularQueueIsEmpty(obj)) {
+        return false;
+    }
+    obj->front = (obj->front + 1) % obj->capacity;
+    obj->size--;
+    return true;
+}
+
+/** Gets the front item from the queue. If the queue is empty, return -1. */
+int myCircularQueueFront(MyCircularQueue* obj) {
+    if (myCircularQueueIsEmpty(obj)) {
+        return -1;
+    }
+    return obj->data[obj->front];
+}
+
+/** Gets the last item from the queue. If the queue is empty, return -1. */
+int myCircularQueueRear(MyCircularQueue* obj) {
+    if (myCircularQueueIsEmpty(obj)) {
+        return -1;
+    }
+    // Calculate the index of the last inserted element
+    int lastIndex = (obj->rear - 1 + obj->capacity) % obj->capacity;
+    return obj->data[lastIndex];
+}
+
+/** Frees the memory allocated for the queue. */
+void myCircularQueueFree(MyCircularQueue* obj) {
+    free(obj->data);
+    free(obj);
+}
+
+/**
+ * Your MyCircularQueue struct will be instantiated and called as such:
+ * MyCircularQueue* obj = myCircularQueueCreate(k);
+ * bool param_1 = myCircularQueueEnQueue(obj, value);
+ * bool param_2 = myCircularQueueDeQueue(obj);
+ * int param_3 = myCircularQueueFront(obj);
+ * int param_4 = myCircularQueueRear(obj);
+ * bool param_5 = myCircularQueueIsEmpty(obj);
+ * bool param_6 = myCircularQueueIsFull(obj);
+ * myCircularQueueFree(obj);
+ */
