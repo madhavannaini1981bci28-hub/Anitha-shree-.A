@@ -1,0 +1,43 @@
+#include <stdio.h>
+
+// Helper function to swap two integers
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Helper function to reverse a subarray in place
+void reverse(int* nums, int start, int end) {
+    while (start < end) {
+        swap(&nums[start], &nums[end]);
+        start++;
+        end--;
+    }
+}
+
+// Main function to find the next permutation
+void nextPermutation(int* nums, int numsSize) {
+    if (numsSize <= 1) return;
+
+    // Step 1: Find the first decreasing element from the right
+    int i = numsSize - 2;
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+        i--;
+    }
+
+    // Step 2: If the entire array is sorted in descending order,
+    // reverse it to get the lowest possible order (ascending).
+    if (i >= 0) {
+        // Step 3: Find the element just larger than nums[i] from the right
+        int j = numsSize - 1;
+        while (nums[j] <= nums[i]) {
+            j--;
+        }
+        // Step 4: Swap them
+        swap(&nums[i], &nums[j]);
+    }
+
+    // Step 5: Reverse the suffix starting after index i
+    reverse(nums, i + 1, numsSize - 1);
+}
