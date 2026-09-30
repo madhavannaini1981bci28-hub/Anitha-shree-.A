@@ -1,0 +1,44 @@
+#include <string.h>
+#include <stdlib.h>
+
+char* predictPartyVictory(char* senate) {
+    int n = strlen(senate);
+
+    // Dynamic arrays to simulate queues for Radiant and Dire senator indices
+    int* radiantQueue = (int*)malloc(n * sizeof(int));
+    int* direQueue = (int*)malloc(n * sizeof(int));
+
+    int rHead = 0, rTail = 0;
+    int dHead = 0, dTail = 0;
+
+    // Step 1: Populate queues with initial indices of senators
+    for (int i = 0; i < n; i++) {
+        if (senate[i] == 'R') {
+            radiantQueue[rTail++] = i;
+        } else {
+            direQueue[dTail++] = i;
+        }
+    }
+
+    // Step 2: Simulate voting rounds until one queue becomes completely empty
+    while (rHead < rTail && dHead < dTail) {
+        int rIndex = radiantQueue[rHead++];
+        int dIndex = direQueue[dHead++];
+
+        // The senator with the smaller index acts first and bans the other
+        if (rIndex < dIndex) {
+            // Radiant bans Dire: Radiant re-enters the queue for the next round
+            radiantQueue[rTail++] = rIndex + n;
+        } else {
+            // Dire bans Radiant: Dire re-enters the queue for the next round
+            direQueue[dTail++] = dIndex + n;
+        }
+    }
+
+    // Clean up allocated memory
+    free(radiantQueue);
+    free(direQueue);
+
+    // Step 3: The party with remaining active senators wins
+    return (rHead < rTail) ? "Radiant" : "Dire";
+}
