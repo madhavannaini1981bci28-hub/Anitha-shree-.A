@@ -1,0 +1,32 @@
+#include <stdlib.h>
+#include <string.h>
+
+int evalRPN(char** tokens, int tokensSize) {
+    // Allocate memory for the stack based on the number of tokens
+    int* stack = (int*)malloc(tokensSize * sizeof(int));
+    int top = -1;
+
+    for (int i = 0; i < tokensSize; i++) {
+        char* token = tokens[i];
+        
+        // Check if the token is a single-character operator
+        if ((token[0] == '+' || token[0] == '-' || token[0] == '*' || token[0] == '/') && token[1] == '\0') {
+            // Pop the right operand first, then the left operand
+            int b = stack[top--];
+            int a = stack[top--];
+            
+            // Perform the operation and push the result back
+            if (token[0] == '+') stack[++top] = a + b;
+            else if (token[0] == '-') stack[++top] = a - b;
+            else if (token[0] == '*') stack[++top] = a * b;
+            else if (token[0] == '/') stack[++top] = a / b; // C integer division truncates toward zero
+        } else {
+            // Convert operand string to integer and push onto the stack
+            stack[++top] = atoi(token);
+        }
+    }
+
+    int result = stack[top];
+    free(stack); // Clean up allocated memory
+    return result;
+}
