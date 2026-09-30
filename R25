@@ -1,0 +1,61 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+#define CAPACITY 110
+
+typedef struct {
+    int* queueData;
+    int front;
+    int rear;
+} MyStack;
+
+/** Initializes the stack object. */
+MyStack* myStackCreate() {
+    MyStack* obj = (MyStack*)malloc(sizeof(MyStack));
+    obj->queueData = (int*)malloc(CAPACITY * sizeof(int));
+    obj->front = 0;
+    obj->rear = 0;
+    return obj;
+}
+
+/** Pushes element x to the top of the stack. */
+void myStackPush(MyStack* obj, int x) {
+    // 1. Calculate the current number of elements in the circular queue
+    int size = (obj->rear - obj->front + CAPACITY) % CAPACITY;
+    
+    // 2. Enqueue the new element at the rear position
+    obj->queueData[obj->rear] = x;
+    obj->rear = (obj->rear + 1) % CAPACITY;
+    
+    // 3. Rotate the queue: Dequeue from front and enqueue to rear
+    for (int i = 0; i < size; i++) {
+        int frontElement = obj->queueData[obj->front];
+        obj->front = (obj->front + 1) % CAPACITY;
+        
+        obj->queueData[obj->rear] = frontElement;
+        obj->rear = (obj->rear + 1) % CAPACITY;
+    }
+}
+
+/** Removes the element on the top of the stack and returns it. */
+int myStackPop(MyStack* obj) {
+    int topElement = obj->queueData[obj->front];
+    obj->front = (obj->front + 1) % CAPACITY;
+    return topElement;
+}
+
+/** Returns the element on the top of the stack. */
+int myStackTop(MyStack* obj) {
+    return obj->queueData[obj->front];
+}
+
+/** Returns true if the stack is empty, false otherwise. */
+bool myStackEmpty(MyStack* obj) {
+    return obj->front == obj->rear;
+}
+
+/** Frees the memory allocated for the stack. */
+void myStackFree(MyStack* obj) {
+    free(obj->queueData);
+    free(obj);
+}
