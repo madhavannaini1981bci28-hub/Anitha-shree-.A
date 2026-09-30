@@ -1,0 +1,41 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* postorderTraversal(struct TreeNode* root, int* returnSize) {
+    *returnSize = 0;
+    if (root == NULL) {
+        return NULL;
+    }
+
+    // Allocate memory based on constraints (up to 100 nodes)
+    int* res = (int*)malloc(100 * sizeof(int));
+    struct TreeNode** stack = (struct TreeNode**)malloc(100 * sizeof(struct TreeNode*));
+    int top = -1;
+
+    // Push the root node to the stack
+    stack[++top] = root;
+
+    // Traverse in Root -> Right -> Left order
+    while (top >= 0) {
+        struct TreeNode* curr = stack[top--];
+        res[(*returnSize)++] = curr->val;
+
+        // Push left child first so right child is processed first
+        if (curr->left != NULL) {
+            stack[++top] = curr->left;
+        }
+        if (curr->right != NULL) {
+            stack[++top] = curr->right;
+        }
+    }
+
+    // Reverse array to get Left -> Right -> Root
+    for (int i = 0; i < (*returnSize) / 2; i++) {
+        int temp = res[i];
+        res[i] = res[*returnSize - 1 - i];
+        res[*returnSize - 1 - i] = temp;
+    }
+
+    free(stack);
+    return res;
+}
