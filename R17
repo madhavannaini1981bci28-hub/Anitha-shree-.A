@@ -1,0 +1,36 @@
+struct ListNode* rotateRight(struct ListNode* head, int k) {
+    // Edge case: if list is empty, has 1 node, or no rotation is needed
+    if (!head || !head->next || k == 0) {
+        return head;
+    }
+
+    // Step 1: Calculate the length of the linked list and find the tail node
+    int length = 1;
+    struct ListNode* tail = head;
+    while (tail->next != NULL) {
+        tail = tail->next;
+        length++;
+    }
+
+    // Step 2: Handle cases where k is greater than or equal to length
+    k = k % length;
+    if (k == 0) {
+        return head; // No rotation needed after modulo optimization
+    }
+
+    // Step 3: Link tail to head to form a circular list temporary
+    tail->next = head;
+
+    // Step 4: Find the new tail node, which is (length - k) steps from the head
+    int steps_to_new_tail = length - k;
+    struct ListNode* new_tail = head;
+    for (int i = 1; i < steps_to_new_tail; i++) {
+        new_tail = new_tail->next;
+    }
+
+    // Step 5: The node after new_tail becomes the new head, then break the loop
+    struct ListNode* new_head = new_tail->next;
+    new_tail->next = NULL;
+
+    return new_head;
+}
