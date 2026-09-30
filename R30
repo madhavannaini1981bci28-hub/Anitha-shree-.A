@@ -1,0 +1,61 @@
+#include <stdlib.h>
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+// Helper function to count the total nodes to allocate memory accurately
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+/**
+ * Note: The returned array must be uniquely allocated using malloc.
+ * The size of the returned array must be written to the location pointed by returnSize.
+ */
+int* preorderTraversal(struct TreeNode* root, int* returnSize) {
+    *returnSize = countNodes(root);
+    if (*returnSize == 0) {
+        return NULL;
+    }
+
+    // Allocate array to store results
+    int* result = (int*)malloc((*returnSize) * sizeof(int));
+    if (result == NULL) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    // Allocate custom stack array for traversal (maximum depth bounded by node count)
+    struct TreeNode** stack = (struct TreeNode**)malloc((*returnSize) * sizeof(struct TreeNode*));
+    int top = -1;
+    int index = 0;
+
+    // Push the root node onto the stack
+    stack[++top] = root;
+
+    while (top >= 0) {
+        // Pop the current node from the top of the stack
+        struct TreeNode* curr = stack[top--];
+        result[index++] = curr->val;
+
+        // Push right child first so that left child is popped and processed first
+        if (curr->right != NULL) {
+            stack[++top] = curr->right;
+        }
+        if (curr->left != NULL) {
+            stack[++top] = curr->left;
+        }
+    }
+
+    // Free the temporary stack memory
+    free(stack);
+    
+    return result;
+}
