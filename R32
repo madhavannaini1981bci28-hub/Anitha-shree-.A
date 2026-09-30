@@ -1,0 +1,49 @@
+#include <stdlib.h>
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+// Helper function to count the total nodes to allocate the exact memory needed
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+// Helper function to perform the actual inorder traversal
+void helper(struct TreeNode* root, int* result, int* index) {
+    if (root == NULL) {
+        return;
+    }
+    
+    helper(root->left, result, index);    // 1. Visit Left
+    result[(*index)++] = root->val;       // 2. Visit Root
+    helper(root->right, result, index);   // 3. Visit Right
+}
+
+/**
+ * Note: The returned array must be uniquely allocated using malloc.
+ * The size of the returned array must be written to the location pointed by returnSize.
+ */
+int* inorderTraversal(struct TreeNode* root, int* returnSize) {
+    // 1. Determine the total number of nodes in the tree
+    *returnSize = countNodes(root);
+    
+    // 2. Allocate the exact memory array required for the result
+    int* result = (int*)malloc((*returnSize) * sizeof(int));
+    if (result == NULL) {
+        *returnSize = 0;
+        return NULL;
+    }
+    
+    // 3. Populate the array using the recursive helper
+    int index = 0;
+    helper(root, result, &index);
+    
+    return result;
+}
