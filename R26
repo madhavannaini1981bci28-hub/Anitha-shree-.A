@@ -1,0 +1,60 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef struct {
+    struct TreeNode** stack;
+    int top;
+} BSTIterator;
+
+/** Helper function to push a node and all its left descendants onto the stack */
+void pushAllLeft(BSTIterator* obj, struct TreeNode* node) {
+    while (node != NULL) {
+        obj->stack[++(obj->top)] = node;
+        node = node->left;
+    }
+}
+
+/** Initializes the iterator with the root of the BST */
+BSTIterator* bSTIteratorCreate(struct TreeNode* root) {
+    BSTIterator* obj = (BSTIterator*)malloc(sizeof(BSTIterator));
+    // Allocate space for the stack up to the maximum potential tree height
+    obj->stack = (struct TreeNode**)malloc(100005 * sizeof(struct TreeNode*));
+    obj->top = -1;
+    
+    // Initialize the stack with the leftmost branch
+    pushAllLeft(obj, root);
+    return obj;
+}
+
+/** Moves the pointer to the next smallest number and returns it */
+int bSTIteratorNext(BSTIterator* obj) {
+    // The top of the stack is always the next smallest node
+    struct TreeNode* node = obj->stack[(obj->top)--];
+    int val = node->val;
+    
+    // If the node has a right subtree, push all its left descendants
+    if (node->right != NULL) {
+        pushAllLeft(obj, node->right);
+    }
+    
+    return val;
+}
+
+/** Returns whether we have a next smallest number */
+bool bSTIteratorHasNext(BSTIterator* obj) {
+    return obj->top >= 0;
+}
+
+/** Frees the memory allocated for the iterator */
+void bSTIteratorFree(BSTIterator* obj) {
+    free(obj->stack);
+    free(obj);
+}
+
+/**
+ * Your BSTIterator struct will be instantiated and called as such:
+ * BSTIterator* obj = bSTIteratorCreate(root);
+ * int param_1 = bSTIteratorNext(obj);
+ * bool param_2 = bSTIteratorHasNext(obj);
+ * bSTIteratorFree(obj);
+ */
