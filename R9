@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// Helper function to check if the stamp matches the target at a given index
+bool canStamp(const char* stamp, int stampLen, const char* target, int index) {
+    bool has_char = false;
+    for (int i = 0; i < stampLen; i++) {
+        if (target[index + i] != '?') {
+            if (target[index + i] != stamp[i]) {
+                return false;
+            }
+            has_char = true; // Must have at least one actual character to stamp
+        }
+    }
+    return has_char;
+}
+
+int* movesToStamp(char* stamp, char* target, int* returnSize) {
+    int stampLen = strlen(stamp);
+    int targetLen = strlen(target);
+    
+    // Maximum possible windows to check
+    int maxMoves = targetLen - stampLen + 1;
+    bool* visited = (bool*)calloc(maxMoves, sizeof(bool));
+    
+    // Array to record results in reverse order
+    int* res = (int*)malloc(maxMoves * 10 * sizeof(int)); 
+    int resCount = 0;
+    
+    int totalStamped = 0;
+    bool moved = true;
+    
+    // Keep trying to stamp until no more progress can be made
+    while (moved && totalStamped < targetLen) {
+        moved = false;
+        
+        for (int i = 0; i <= targetLen - stampLen; i++) {
+            if (!visited[i] && canStamp(stamp, stampLen, target, i)) {
+                visited[i] = true;
+                moved = true;
+                res[resCount++] = i;
+                
+                // Convert matched characters to '?' wildcards
+                for (int j = 0; j < stampLen; j++) {
+                    if (target[i + j] != '?') {
+                        target[i + j] = '?';
+                        totalStamped++;
+                    }
+                }
+                
+                if (totalStamped == targetLen) break;
+            }
+        }
+    }
+    
+    free(visited);
+    
+    // If we couldn't replace the entire string with '?', it's impossible
+    if (totalStamped < targetLen) {
+        free(res);
+        *returnSize = 0;
+        return NULL;
+    }
+    
+    // The results were collected in reverse order, so we invert them
+    int* finalRes = (int*)malloc(resCount * sizeof(int));
+    for (int i = 0; i < resCount; i++) {
+        finalRes[i] = res[resCount - 1 - i];
+    }
+    
+    free(res);
+    *returnSize = resCount;
+    return finalRes;
+}
