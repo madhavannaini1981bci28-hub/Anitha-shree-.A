@@ -1,0 +1,30 @@
+// Helper function to swap two elements
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void sortColors(int* nums, int numsSize) {
+    int low = 0;
+    int mid = 0;
+    int high = numsSize - 1;
+
+    while (mid <= high) {
+        if (nums[mid] == 0) {
+            // Found a red object: swap it to the left boundary
+            swap(&nums[low], &nums[mid]);
+            low++;
+            mid++;
+        } else if (nums[mid] == 1) {
+            // Found a white object: it's already in the right relative place
+            mid++;
+        } else { // nums[mid] == 2
+            // Found a blue object: swap it to the right boundary
+            swap(&nums[mid], &nums[high]);
+            high--;
+            // Do NOT increment mid here because the newly swapped element 
+            // at nums[mid] hasn't been evaluated yet.
+        }
+    }
+}
