@@ -1,0 +1,41 @@
+#include <stdlib.h>
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+int shortestSubarray(int* nums, int numsSize, int k) {
+    // Allocate space for prefix sums. Use long long to prevent integer overflow.
+    long long* pref = (long long*)malloc((numsSize + 1) * sizeof(long long));
+    pref[0] = 0;
+    for (int i = 0; i < numsSize; i++) {
+        pref[i + 1] = pref[i] + nums[i];
+    }
+
+    // Allocate space for the monotonic deque storing indices
+    int* deque = (int*)malloc((numsSize + 1) * sizeof(int));
+    int head = 0, tail = 0;
+    
+    int min_len = numsSize + 1;
+
+    for (int j = 0; j <= numsSize; j++) {
+        // 1. Shrink window from the left if the subarray condition is met
+        while (head < tail && pref[j] - pref[deque[head]] >= k) {
+            min_len = MIN(min_len, j - deque[head]);
+            head++; // Deque front pop
+        }
+
+        // 2. Maintain monotonic increasing order in the deque from the right
+        while (head < tail && pref[j] <= pref[deque[tail - 1]]) {
+            tail--; // Deque back pop
+        }
+
+        // 3. Add the current index to the deque
+        deque[tail++] = j;
+    }
+
+    // Free the allocated memory
+    free(pref);
+    free(deque);
+
+    // If min_len was never updated, no valid subarray exists
+    return (min_len <= numsSize) ? min_len : -1;
+}
