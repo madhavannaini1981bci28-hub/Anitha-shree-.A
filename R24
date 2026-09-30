@@ -1,0 +1,69 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+#define CAPACITY 110
+
+typedef struct {
+    int* stackIn;
+    int topIn;
+    int* stackOut;
+    int topOut;
+} MyQueue;
+
+/** Initializes the queue object. */
+MyQueue* myQueueCreate() {
+    MyQueue* obj = (MyQueue*)malloc(sizeof(MyQueue));
+    obj->stackIn = (int*)malloc(CAPACITY * sizeof(int));
+    obj->stackOut = (int*)malloc(CAPACITY * sizeof(int));
+    obj->topIn = -1;
+    obj->topOut = -1;
+    return obj;
+}
+
+/** Pushes element x to the back of the queue. */
+void myQueuePush(MyQueue* obj, int x) {
+    obj->stackIn[++(obj->topIn)] = x;
+}
+
+/** Helper function to transfer elements from stackIn to stackOut if stackOut is empty. */
+void transferIfNeeded(MyQueue* obj) {
+    if (obj->topOut == -1) {
+        while (obj->topIn >= 0) {
+            obj->stackOut[++(obj->topOut)] = obj->stackIn[(obj->topIn)--];
+        }
+    }
+}
+
+/** Removes the element from the front of the queue and returns it. */
+int myQueuePop(MyQueue* obj) {
+    transferIfNeeded(obj);
+    return obj->stackOut[(obj->topOut)--];
+}
+
+/** Returns the element at the front of the queue. */
+int myQueuePeek(MyQueue* obj) {
+    transferIfNeeded(obj);
+    return obj->stackOut[obj->topOut];
+}
+
+/** Returns true if the queue is empty, false otherwise. */
+bool myQueueEmpty(MyQueue* obj) {
+    return (obj->topIn == -1) && (obj->topOut == -1);
+}
+
+/** Frees the memory allocated for the queue. */
+void myQueueFree(MyQueue* obj) {
+    free(obj->stackIn);
+    free(obj->stackOut);
+    free(obj);
+}
+
+/**
+ * Your MyQueue struct will be instantiated and called as such:
+ * MyQueue* obj = myQueueCreate();
+ * myQueuePush(obj, x);
+ * int param_2 = myQueuePop(obj);
+ * int param_3 = myQueuePeek(obj);
+ * bool param_4 = myQueueEmpty(obj);
+ * myQueueFree(obj);
+ */
