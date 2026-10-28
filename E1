@@ -1,0 +1,30 @@
+int minKBitFlips(int* nums, int numsSize, int k) {
+    int total_flips = 0;
+    int current_flips = 0;
+
+    for (int i = 0; i < numsSize; i++) {
+        // If the flip that started at (i - k) is moving out of the window,
+        // remove its effect from current_flips.
+        if (i >= k && nums[i - k] == 2) {
+            current_flips--;
+        }
+
+        // Determine the actual value of nums[i] considering previous flips.
+        // If current_flips is odd, the bit is inverted. If even, it remains the same.
+        // This is equivalent to: (nums[i] == 1 && current_flips % 2 == 1) -> becomes 0
+        //                        (nums[i] == 0 && current_flips % 2 == 0) -> stays 0
+        if (current_flips % 2 == nums[i]) {
+            // If we need to flip but there aren't enough elements left for a window of size k
+            if (i + k > numsSize) {
+                return -1;
+            }
+            
+            // Mark that a flip started at index i
+            nums[i] = 2; 
+            current_flips++;
+            total_flips++;
+        }
+    }
+
+    return total_flips;
+}
