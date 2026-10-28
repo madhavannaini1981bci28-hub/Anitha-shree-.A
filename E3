@@ -1,0 +1,72 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+/**
+ * struct NestedIterator definition containing the dynamic array, 
+ * its current allocated size, and the internal tracker pointer.
+ */
+struct NestedIterator {
+    int *vals;
+    int size;
+    int cur;
+};
+
+/**
+ * Recursive Depth-First Search helper function to flatten the nested lists.
+ */
+void flattenDFS(struct NestedIterator *iter, struct NestedInteger **nestedList, int nestedListSize) {
+    for (int i = 0; i < nestedListSize; i++) {
+        if (NestedIntegerIsInteger(nestedList[i])) {
+            // Dynamically allocate or reallocate array space as we find integers
+            iter->vals = realloc(iter->vals, sizeof(int) * (iter->size + 1));
+            iter->vals[iter->size] = NestedIntegerGetInteger(nestedList[i]);
+            iter->size++;
+        } else {
+            // Recursively dive into the child list
+            flattenDFS(iter, 
+                       NestedIntegerGetList(nestedList[i]), 
+                       NestedIntegerGetListSize(nestedList[i]));
+        }
+    }
+}
+
+/**
+ * Initializes the iterator structure and runs the upfront flattening process.
+ */
+struct NestedIterator *nestedIterCreate(struct NestedInteger** nestedList, int nestedListSize) {
+    struct NestedIterator *iter = malloc(sizeof(struct NestedIterator));
+    iter->vals = NULL;
+    iter->size = 0;
+    iter->cur = 0;
+    
+    // Flatten the input structures immediately
+    flattenDFS(iter, nestedList, nestedListSize);
+    
+    return iter;
+}
+
+/**
+ * Returns true if there are still elements remaining in the flat array.
+ */
+bool nestedIterHasNext(struct NestedIterator *iter) {
+    return iter->cur < iter->size;
+}
+
+/**
+ * Returns the next single integer and increments the element tracking index.
+ */
+int nestedIterNext(struct NestedIterator *iter) {
+    int result = iter->vals[iter->cur];
+    iter->cur++;
+    return result;
+}
+
+/**
+ * Deallocates memory previously allocated for the iterator.
+ */
+void nestedIterFree(struct NestedIterator *iter) {
+    if (iter) {
+        free(iter->vals);
+        free(iter);
+    }
+}
